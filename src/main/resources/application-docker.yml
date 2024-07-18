@@ -1,0 +1,73 @@
+user-service:
+  url: http://user-management:9095
+
+spring:
+  datasource:
+    url: jdbc:mysql://mysql-container:3306/erp?createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak-ms:8180/realms/erp
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+  config:
+    import: optional:configserver:http://config-server:9093
+  #RabbitMq
+  rabbitmq:
+    host: rabbit1
+    port: 5672
+    username: guest
+    password: guest
+#  profiles:
+#    active: prod
+server:
+  port: 9090
+
+jwt:
+  auth:
+    converter:
+      resource-id: esprit
+      principle-attribute: preferred_username
+
+
+keycloak:
+  auth-server-url: http://keycloak-ms:8180/
+  realm: esprit
+  resource: erp
+  credentials:
+    secret:
+
+admin:
+  username: admin
+  password: admin
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+#ZIPKIN
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
